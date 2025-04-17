@@ -813,6 +813,7 @@ namespace FileArchiver
                         TotalSize = (int)(args.SelectedSize / SizeDiv),
                         SizeDone = (int)(SizeDone / SizeDiv)
                     });
+                    sw.Restart();
                 }
                 try
                 {
