@@ -80,6 +80,11 @@
             this.cmdBrowserOutput = new System.Windows.Forms.Button();
             this.txtOutputDirectory = new System.Windows.Forms.TextBox();
             this.lblDeleteWarning = new System.Windows.Forms.Label();
+            this.cmdRun = new System.Windows.Forms.Button();
+            this.cmdStop = new System.Windows.Forms.Button();
+            this.prgFiles = new System.Windows.Forms.ProgressBar();
+            this.lblProcess = new System.Windows.Forms.Label();
+            this.prgSize = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.nudSizeStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSizeEnd)).BeginInit();
             this.SuspendLayout();
@@ -358,7 +363,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 358);
+            this.label2.Location = new System.Drawing.Point(12, 299);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(120, 13);
             this.label2.TabIndex = 22;
@@ -485,7 +490,7 @@
             "Copy",
             "Move",
             "Delete"});
-            this.cmbActionType.Location = new System.Drawing.Point(138, 355);
+            this.cmbActionType.Location = new System.Drawing.Point(138, 296);
             this.cmbActionType.Name = "cmbActionType";
             this.cmbActionType.Size = new System.Drawing.Size(102, 21);
             this.cmbActionType.TabIndex = 35;
@@ -509,7 +514,7 @@
             this.cmbActionSystem.Items.AddRange(new object[] {
             "False",
             "True"});
-            this.cmbActionSystem.Location = new System.Drawing.Point(494, 382);
+            this.cmbActionSystem.Location = new System.Drawing.Point(494, 323);
             this.cmbActionSystem.Name = "cmbActionSystem";
             this.cmbActionSystem.Size = new System.Drawing.Size(69, 21);
             this.cmbActionSystem.TabIndex = 44;
@@ -519,7 +524,7 @@
             // 
             this.chkActionSystem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkActionSystem.AutoSize = true;
-            this.chkActionSystem.Location = new System.Drawing.Point(425, 384);
+            this.chkActionSystem.Location = new System.Drawing.Point(425, 325);
             this.chkActionSystem.Name = "chkActionSystem";
             this.chkActionSystem.Size = new System.Drawing.Size(63, 17);
             this.chkActionSystem.TabIndex = 43;
@@ -537,7 +542,7 @@
             this.cmbActionArchived.Items.AddRange(new object[] {
             "False",
             "True"});
-            this.cmbActionArchived.Location = new System.Drawing.Point(335, 382);
+            this.cmbActionArchived.Location = new System.Drawing.Point(335, 323);
             this.cmbActionArchived.Name = "cmbActionArchived";
             this.cmbActionArchived.Size = new System.Drawing.Size(69, 21);
             this.cmbActionArchived.TabIndex = 42;
@@ -552,7 +557,7 @@
             this.cmbActionHidden.Items.AddRange(new object[] {
             "False",
             "True"});
-            this.cmbActionHidden.Location = new System.Drawing.Point(494, 355);
+            this.cmbActionHidden.Location = new System.Drawing.Point(494, 296);
             this.cmbActionHidden.Name = "cmbActionHidden";
             this.cmbActionHidden.Size = new System.Drawing.Size(69, 21);
             this.cmbActionHidden.TabIndex = 41;
@@ -562,7 +567,7 @@
             // 
             this.chkActionArchived.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkActionArchived.AutoSize = true;
-            this.chkActionArchived.Location = new System.Drawing.Point(255, 384);
+            this.chkActionArchived.Location = new System.Drawing.Point(255, 325);
             this.chkActionArchived.Name = "chkActionArchived";
             this.chkActionArchived.Size = new System.Drawing.Size(71, 17);
             this.chkActionArchived.TabIndex = 40;
@@ -575,7 +580,7 @@
             // 
             this.chkActionHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkActionHidden.AutoSize = true;
-            this.chkActionHidden.Location = new System.Drawing.Point(425, 357);
+            this.chkActionHidden.Location = new System.Drawing.Point(425, 298);
             this.chkActionHidden.Name = "chkActionHidden";
             this.chkActionHidden.Size = new System.Drawing.Size(63, 17);
             this.chkActionHidden.TabIndex = 39;
@@ -593,7 +598,7 @@
             this.cmbActionReadonly.Items.AddRange(new object[] {
             "False",
             "True"});
-            this.cmbActionReadonly.Location = new System.Drawing.Point(335, 355);
+            this.cmbActionReadonly.Location = new System.Drawing.Point(335, 296);
             this.cmbActionReadonly.Name = "cmbActionReadonly";
             this.cmbActionReadonly.Size = new System.Drawing.Size(69, 21);
             this.cmbActionReadonly.TabIndex = 38;
@@ -603,7 +608,7 @@
             // 
             this.chkActionReadonly.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkActionReadonly.AutoSize = true;
-            this.chkActionReadonly.Location = new System.Drawing.Point(255, 357);
+            this.chkActionReadonly.Location = new System.Drawing.Point(255, 298);
             this.chkActionReadonly.Name = "chkActionReadonly";
             this.chkActionReadonly.Size = new System.Drawing.Size(74, 17);
             this.chkActionReadonly.TabIndex = 37;
@@ -621,7 +626,7 @@
             this.txtPreviewFilters.Multiline = true;
             this.txtPreviewFilters.Name = "txtPreviewFilters";
             this.txtPreviewFilters.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtPreviewFilters.Size = new System.Drawing.Size(759, 108);
+            this.txtPreviewFilters.Size = new System.Drawing.Size(759, 49);
             this.txtPreviewFilters.TabIndex = 46;
             // 
             // cmdPreviewFilters
@@ -674,7 +679,7 @@
             // 
             this.lblOutputDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblOutputDirectory.AutoSize = true;
-            this.lblOutputDirectory.Location = new System.Drawing.Point(12, 391);
+            this.lblOutputDirectory.Location = new System.Drawing.Point(12, 332);
             this.lblOutputDirectory.Name = "lblOutputDirectory";
             this.lblOutputDirectory.Size = new System.Drawing.Size(87, 13);
             this.lblOutputDirectory.TabIndex = 52;
@@ -684,7 +689,7 @@
             // cmdBrowserOutput
             // 
             this.cmdBrowserOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmdBrowserOutput.Location = new System.Drawing.Point(697, 405);
+            this.cmdBrowserOutput.Location = new System.Drawing.Point(697, 346);
             this.cmdBrowserOutput.Name = "cmdBrowserOutput";
             this.cmdBrowserOutput.Size = new System.Drawing.Size(75, 23);
             this.cmdBrowserOutput.TabIndex = 54;
@@ -697,7 +702,7 @@
             // 
             this.txtOutputDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputDirectory.Location = new System.Drawing.Point(15, 407);
+            this.txtOutputDirectory.Location = new System.Drawing.Point(15, 348);
             this.txtOutputDirectory.Name = "txtOutputDirectory";
             this.txtOutputDirectory.Size = new System.Drawing.Size(676, 20);
             this.txtOutputDirectory.TabIndex = 53;
@@ -709,7 +714,7 @@
             this.lblDeleteWarning.AutoSize = true;
             this.lblDeleteWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDeleteWarning.ForeColor = System.Drawing.Color.Red;
-            this.lblDeleteWarning.Location = new System.Drawing.Point(138, 377);
+            this.lblDeleteWarning.Location = new System.Drawing.Point(138, 318);
             this.lblDeleteWarning.Name = "lblDeleteWarning";
             this.lblDeleteWarning.Size = new System.Drawing.Size(508, 40);
             this.lblDeleteWarning.TabIndex = 55;
@@ -717,11 +722,66 @@
     "Preview Filter Results button to see all files that will be deleted.";
             this.lblDeleteWarning.Visible = false;
             // 
+            // cmdRun
+            // 
+            this.cmdRun.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdRun.Enabled = false;
+            this.cmdRun.Location = new System.Drawing.Point(666, 374);
+            this.cmdRun.Name = "cmdRun";
+            this.cmdRun.Size = new System.Drawing.Size(106, 29);
+            this.cmdRun.TabIndex = 56;
+            this.cmdRun.Text = "Run";
+            this.cmdRun.UseVisualStyleBackColor = true;
+            this.cmdRun.Click += new System.EventHandler(this.cmdRun_Click);
+            // 
+            // cmdStop
+            // 
+            this.cmdStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdStop.Location = new System.Drawing.Point(666, 374);
+            this.cmdStop.Name = "cmdStop";
+            this.cmdStop.Size = new System.Drawing.Size(106, 29);
+            this.cmdStop.TabIndex = 57;
+            this.cmdStop.Text = "Stop";
+            this.cmdStop.UseVisualStyleBackColor = true;
+            this.cmdStop.Visible = false;
+            this.cmdStop.Click += new System.EventHandler(this.cmdStop_Click);
+            // 
+            // prgFiles
+            // 
+            this.prgFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.prgFiles.Location = new System.Drawing.Point(16, 374);
+            this.prgFiles.Name = "prgFiles";
+            this.prgFiles.Size = new System.Drawing.Size(645, 13);
+            this.prgFiles.TabIndex = 58;
+            // 
+            // lblProcess
+            // 
+            this.lblProcess.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblProcess.Location = new System.Drawing.Point(12, 413);
+            this.lblProcess.Name = "lblProcess";
+            this.lblProcess.Size = new System.Drawing.Size(760, 28);
+            this.lblProcess.TabIndex = 59;
+            // 
+            // prgSize
+            // 
+            this.prgSize.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.prgSize.Location = new System.Drawing.Point(16, 390);
+            this.prgSize.Name = "prgSize";
+            this.prgSize.Size = new System.Drawing.Size(645, 13);
+            this.prgSize.TabIndex = 60;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 450);
+            this.Controls.Add(this.prgSize);
+            this.Controls.Add(this.lblProcess);
+            this.Controls.Add(this.prgFiles);
+            this.Controls.Add(this.cmdRun);
             this.Controls.Add(this.cmdBrowserOutput);
             this.Controls.Add(this.txtOutputDirectory);
             this.Controls.Add(this.lblOutputDirectory);
@@ -774,6 +834,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtSourceDirectory);
             this.Controls.Add(this.lblDeleteWarning);
+            this.Controls.Add(this.cmdStop);
             this.MinimumSize = new System.Drawing.Size(800, 489);
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -839,6 +900,11 @@
         private System.Windows.Forms.Button cmdBrowserOutput;
         private System.Windows.Forms.TextBox txtOutputDirectory;
         private System.Windows.Forms.Label lblDeleteWarning;
+        private System.Windows.Forms.Button cmdRun;
+        private System.Windows.Forms.Button cmdStop;
+        private System.Windows.Forms.ProgressBar prgFiles;
+        private System.Windows.Forms.Label lblProcess;
+        private System.Windows.Forms.ProgressBar prgSize;
     }
 }
 

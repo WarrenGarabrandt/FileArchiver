@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,6 +16,12 @@ namespace FileArchiver
 {
     public partial class Form1 : Form
     {
+        private BackgroundWorker Worker;
+        public Dictionary<string, DirItem> DirIndex = new Dictionary<string, DirItem>();
+        public List<DirItem> DirList = new List<DirItem>();
+        public List<FileItem> FileList = new List<FileItem>();
+        public string InputDirectory = null;
+
         private string[] CommonTypes = new string[]
         {
             ".doc", ".docm", ".docx", ".dot", ".dotm", ".dotx",
@@ -53,10 +61,28 @@ namespace FileArchiver
             cmbActionHidden.SelectedIndex = 1;
             cmbActionReadonly.SelectedIndex = 1;
             cmbActionSystem.SelectedIndex = 1;
+            Worker = new BackgroundWorker();
+            Worker.WorkerReportsProgress = true;
+            Worker.WorkerSupportsCancellation = true;
+            Worker.DoWork += Worker_DoWork;
+            Worker.ProgressChanged += Worker_ProgressChanged;
+            Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
         }
         
         private void cmdScanSource_Click(object sender, EventArgs e)
         {
+            cmdRun.Enabled = false;
+            InputDirectory = null;
+            if (string.IsNullOrWhiteSpace(txtSourceDirectory.Text))
+            {
+                MessageBox.Show("Choose a source directory first.");
+                return;
+            }
+            if (!txtSourceDirectory.Text.EndsWith("\\"))
+            {
+                txtSourceDirectory.Text += "\\";
+            }
+
             DirIndex.Clear();
             DirList.Clear();
             FileList.Clear();
@@ -92,12 +118,11 @@ namespace FileArchiver
             else
             {
                 txtPreviewFilters.Text = "Directory scan completed. Click [Preview filter results] above to show file filter results.";
+                InputDirectory = txtSourceDirectory.Text;
+                cmdRun.Enabled = true;
             }
         }
 
-        public Dictionary<string, DirItem> DirIndex = new Dictionary<string, DirItem>();
-        public List<DirItem> DirList = new List<DirItem>();
-        public List<FileItem> FileList = new List<FileItem>();
 
         public class FileItem
         {
@@ -716,6 +741,275 @@ namespace FileArchiver
                     txtOutputDirectory.Text = dlg.SelectedPath;
                 }
             }
+        }
+
+        private void cmdStop_Click(object sender, EventArgs e)
+        {
+            cmdStop.Enabled = false;
+            Worker.CancelAsync();
+        }
+
+        private class WorkerArgs
+        {
+            public string SourceDirectory { get; set; }
+            public string OutputDirectory { get; set; }
+            public List<string> FileSelection { get; set; }
+            public long SelectedSize { get; set; }
+            public JobTypes JobType { get; set; }
+            public enum JobTypes
+            {
+                Copy,
+                Move,
+                Delete,
+                Attribute
+            }
+            public bool? Readonly { get; set; }
+            public bool? Archive { get; set; }
+            public bool? Hidden { get; set; }
+            public bool? System { get; set; }
+        }
+
+        private class WorkReport
+        {
+            public int TotalFiles { get; set; }
+            public int TotalSize { get; set; }
+            public int FilesDone { get; set; }
+            public int SizeDone { get; set; }
+            public string CurrentFile { get; set; }
+        }       
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            WorkerArgs args = e.Argument as WorkerArgs;
+            if (args == null)
+            {
+                e.Result = new Exception("No work specified.");
+                return;
+            }
+            int SizeDiv = 1;
+            if (args.SelectedSize > Int32.MaxValue)
+            {
+                float div = args.SelectedSize / Int32.MaxValue;
+                int power = 1;
+                while (power < div)
+                {
+                    power *= 2;
+                }
+                SizeDiv = power;
+            }
+            long SizeDone = 0;
+            int CountDone = 0;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            foreach (var file in args.FileSelection)
+            {
+                if (sw.ElapsedMilliseconds > 100)
+                {
+                    Worker.ReportProgress(0, new WorkReport()
+                    { 
+                        CurrentFile = file,
+                        FilesDone = CountDone,
+                        TotalFiles = args.FileSelection.Count,
+                        TotalSize = (int)(args.SelectedSize / SizeDiv),
+                        SizeDone = (int)(SizeDone / SizeDiv)
+                    });
+                }
+                try
+                {
+                    FileInfo finfo = new FileInfo(file);
+                    if (finfo.Exists)
+                    {
+                        SizeDone += finfo.Length;
+                        CountDone++;
+                        switch (args.JobType)
+                        {
+                            case WorkerArgs.JobTypes.Attribute:
+                                if (args.Readonly.HasValue)
+                                {
+                                    File.SetAttributes(file, FileAttributes.ReadOnly);
+                                }
+                                if (args.Archive.HasValue)
+                                {
+                                    File.SetAttributes(file, FileAttributes.Archive);
+                                }
+                                if (args.Hidden.HasValue)
+                                {
+                                    File.SetAttributes(file, FileAttributes.Hidden);
+                                }
+                                if (args.System.HasValue)
+                                {
+                                    File.SetAttributes(file, FileAttributes.System);
+                                }
+                                break;
+                            case WorkerArgs.JobTypes.Copy:
+                                {
+                                    string newName = Path.Combine(args.OutputDirectory, file.Substring(args.SourceDirectory.Length));
+                                    string newPath = Path.GetDirectoryName(newName);
+                                    if (!Directory.Exists(newPath))
+                                    {
+                                        Directory.CreateDirectory(newPath);
+                                    }
+                                    File.Copy(file, newName, false);
+                                }
+                                break;
+                            case WorkerArgs.JobTypes.Move:
+                                {
+                                    string newName = Path.Combine(args.OutputDirectory, file.Substring(args.SourceDirectory.Length));
+                                    string newPath = Path.GetDirectoryName(newName);
+                                    if (!Directory.Exists(newPath))
+                                    {
+                                        Directory.CreateDirectory(newPath);
+                                    }
+                                    File.Move(file, newName);
+                                }
+                                break;
+                            case WorkerArgs.JobTypes.Delete:
+                                File.Delete(file);
+                                break;
+                        }
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("Exception processing {0}, {1}.", file, ex.ToString()));
+                }
+            }
+            Worker.ReportProgress(0, new WorkReport()
+            {
+                CurrentFile = "Completed.",
+                FilesDone = CountDone,
+                TotalFiles = args.FileSelection.Count,
+                TotalSize = (int)(args.SelectedSize / SizeDiv),
+                SizeDone = (int)(SizeDone / SizeDiv)
+            });
+        }
+
+        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            WorkReport report = e.UserState as WorkReport;
+            if (report == null)
+            { 
+                return;
+            }
+            if (report.TotalFiles != prgFiles.Maximum)
+            {
+                prgFiles.Value = 0;
+                prgFiles.Maximum = report.TotalFiles;
+            }
+            // slowly animated filling progress bars suck. This skips that animation.
+            if (report.FilesDone + 1 <= prgFiles.Maximum)
+            {
+                prgFiles.Value = report.FilesDone + 1;
+            }
+            prgFiles.Value = report.FilesDone;
+            if (report.TotalSize != prgSize.Maximum)
+            {
+                prgSize.Value = 0;
+                prgSize.Maximum = report.TotalSize;
+            }
+            // skip animation again.
+            if (report.SizeDone + 1 <= prgSize.Maximum)
+            {
+                prgSize.Value = report.SizeDone + 1;
+            }
+            prgSize.Value = report.SizeDone;
+            lblProcess.Text = report.CurrentFile;
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Result is Exception)
+            {
+                lblProcess.Text = ((Exception)e.Result).Message;
+            }
+            else
+            {
+                lblProcess.Text = "Completed.";
+            }
+            cmdStop.Enabled = true;
+            cmdStop.Visible = false;
+            cmdRun.Visible = true;
+            cmdRun.Enabled = false;
+        }
+
+        private void cmdRun_Click(object sender, EventArgs e)
+        {
+            if (Worker.IsBusy)
+            {
+                MessageBox.Show("Busy, please wait and try again.");
+                return;
+            }
+            if (string.IsNullOrEmpty(InputDirectory))
+            {
+                MessageBox.Show("No input selected. Choose an input directory and click Scan Source.");
+                return;
+            }
+            UpdateFilterSelection();
+            List<string> FileSelection = new List<string>();
+            long SelectedSize = 0;
+            foreach (var item in FileList.Where(x => x.Selected))
+            {
+                FileSelection.Add(Path.Combine(item.Parent.AbsolutePath, item.FileName));
+                SelectedSize += item.Size;
+            }
+            if (FileSelection.Count == 0)
+            {
+                MessageBox.Show("No files have been selected for processing.", "No files", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            WorkerArgs.JobTypes jobType;
+            switch (cmbActionType.SelectedIndex)
+            {
+                case 0:
+                    jobType = WorkerArgs.JobTypes.Attribute;
+                    break;
+                case 1:
+                    jobType = WorkerArgs.JobTypes.Copy;
+                    break;
+                case 2:
+                    jobType = WorkerArgs.JobTypes.Move;
+                    break;
+                case 3:
+                    jobType = WorkerArgs.JobTypes.Delete;
+                    break;
+                default:
+                    MessageBox.Show("Unknown action type.");
+                    return;
+            }
+            WorkerArgs args = new WorkerArgs()
+            {
+                FileSelection = FileSelection,
+                SelectedSize = SelectedSize,
+                JobType = jobType,
+                SourceDirectory = InputDirectory,
+                OutputDirectory = txtOutputDirectory.Text,
+                Archive = null,
+                Hidden = null,
+                Readonly = null,
+                System = null
+            };
+            if (chkActionReadonly.Checked)
+            {
+                args.Readonly = cmbActionReadonly.SelectedIndex == 1;
+            }
+            if (chkActionArchived.Checked)
+            {
+                args.Archive = cmbActionArchived.SelectedIndex == 1;
+            }
+            if (chkActionHidden.Checked)
+            {
+                args.Hidden = cmbActionHidden.SelectedIndex == 1;
+            }
+            if (chkActionSystem.Checked)
+            {
+                args.System = cmbActionSystem.SelectedIndex == 1;
+            }
+
+            Worker.RunWorkerAsync(args);
+            cmdRun.Visible = false;
+            cmdStop.Visible = true;
+            cmdStop.Enabled = true;
         }
     }
 }
